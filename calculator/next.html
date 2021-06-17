@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <main>
+        <div>
+            <input type="button" value="1" id="1">
+            <input type="button" value="2" id="2">
+            <input type="button" value="3" id="3">
+            <input type="button" value="4" id="4">
+            <input type="button" value="5" id="5">
+            <input type="button" value="6" id="6">
+            <input type="button" value="7" id="7">
+            <input type="button" value="8" id="8">
+            <input type="button" value="9" id="9">
+            <input type="button" value="0" id="0">
+            <input type="button" value="." id="point">
+            <input type="button" value="+" id="plus">
+            <input type="button" value="-" id="minus">
+            <input type="button" value="×" id="peke">
+            <input type="button" value="÷" id="sura">
+            <input type="button" value="=" id="equal">
+
+            <div id="show"></div>
+        </div>
+    </main>
+</body>
+<script>
+
+    let total = "";　//見た目の計算結果
+    let sum = 0;   //プログラム上の合計
+    let add = 0;　//数字の追加
+    let addPointNumber = 0.1; //押された数字を1/10にする。
+    let pointNumber = 0.0;  //小数点の数字を保管しておく。
+    let pointCounter = false;　// 小数点が押されたときの処理と普通の処理で分けるため
+    let doubleNumber = 0;  //２桁以上の数字を保存する変数
+    let addDoubleNumber = 0;  //２桁以上の数字を仮保存する変数
+    let doubleCounter = false; //２桁以上の処理になるとtrueを返す
+    let first = true;　//計算初めのカウンター2回目以降はfalse
+    let plusCounter = false;  //足し算カウンター tureだと数字を入力したら足し算の処理を行う //以下の変数(minusCounter)以降も同じ感じ
+    let sumPluse = false;     //イコールを押したとき最後に押した計算ボタンを参照するため
+    let minusCounter = true;
+    let sumMinus = false;
+    let pekeCounter = false;
+    let sumPeke = false;
+    let suraCounter = false;
+    let sumSura= false;
+    const  plus = document.getElementById("plus");
+    const minus = document.getElementById("minus");
+    const peke = document.getElementById("peke");
+    const sura = document.getElementById("sura");
+    const point = document.getElementById("point");
+    const  equal = document.getElementById("equal");
+    const show = document.getElementById("show");
+
+    point.onclick = () => {
+        pointCounter = true;
+        total = show.textContent + ".";
+    }
+    
+    for(const n of [0,1,2,3,4,5,6,7,8,9]) {
+        const num = document.getElementById(String(n)); 
+        num.onclick = () => {
+            if(pointCounter == false) {
+                add = n;　//変数に値を代入
+                doubleNumber = 0;
+                doubleNumber = addDoubleNumber + add;
+                if((plusCounter == minusCounter) == (pekeCounter == suraCounter)) {
+                    doubleCounter = true;
+                    total = total + add;
+                    show.textContent = total;
+                } else if((sum > 0 || sum < 0) && (plusCounter)) {
+                    minusCounter = true;    //カウンターのリセット
+                    pekeCounter = true;
+                    suraCounter = true;
+                    if(sum == 0) sum = sum + add;        //足し算の処理
+                    total = total + add;
+                    show.textContent = total;
+                } else if((sum > 0 || sum < 0) && (minusCounter)) {
+                    plusCounter = true;
+                    pekeCounter = true;
+                    suraCounter = true;
+                    if(sum == 0) sum = sum - add;
+                    total = total + add;
+                    show.textContent = total;
+                }else if((suraCounter) && (pekeCounter)) {
+                    plusCounter = true;
+                    minusCounter = true;
+                    pekeCounter = true;
+                    suraCounter = true;
+                    total = total + n;
+                    show.textContent = total;
+                } else {
+                    plusCounter = true; 
+                    pekeCounter = true;
+                    suraCounter = true;
+                    show.textContent = add;
+                };
+                
+                if ((doubleNumber < 10) && (!doubleCounter)) {
+                    total = total + add;
+                    addDoubleNumber = add * 10;
+                } else {
+                    addDoubleNumber =  doubleNumber * 10;
+                };
+            } else {
+               
+               pointNumber = doubleNumber + pointNumber + (n * addPointNumber);  //入力された数字nをaddPointNumberをかけて小数にしている. 
+
+                if((plusCounter == minusCounter) == (pekeCounter == suraCounter)) {
+                    doubleCounter = true;
+                    pekeCounter = true;
+                    suraCounter = true;
+                    total = total + n;
+                    show.textContent = total;
+                } else if((sum > 0 || sum < 0) && (plusCounter)) {
+                    minusCounter = true;    //カウンターのリセット
+                    pekeCounter = true;
+                    suraCounter = true;
+                    if(sum == 0) sum = sum + pointNumber;        //足し算の処理
+                    total = total + n;
+                    show.textContent = total;
+                } else if((sum > 0 || sum < 0) && (minusCounter)) {
+                    plusCounter = true;
+                    pekeCounter = true;
+                    suraCounter = true;
+                    if(sum == 0) sum = sum - pointNumber;
+                    total = total + n;
+                    show.textContent = total;
+                } else if((suraCounter) && (pekeCounter)) {
+                    plusCounter = true;
+                    minusCounter = true;
+                    pekeCounter = true;
+                    suraCounter = true;
+                    total = total + n;
+                    show.textContent = total;
+                } else {
+                    plusCounter = true;
+                    pekeCounter = true;
+                    suraCounter = true; 
+                    show.textContent = pointNumber;
+                };
+                doubleNumber = 0; //ダブルナンバーリセット
+                add = 0; //addをリセット
+                addPointNumber = addPointNumber * 0.1;  //二週目の時はさらに小数点をずらすため
+            };
+        };
+    };
+
+
+    plus.onclick = () => {
+        if(pointNumber) {
+            if(sum == 0) {
+                sum = pointNumber;
+            } else if(sumMinus) {
+                sum = sum - pointNumber;
+            }else if(sumPeke) {
+                sum = sum * pointNumber;
+            }else if(sumSura) {
+                sum = sum / pointNumber;
+            }else {
+                sum = sum  + pointNumber;
+            };
+        }else {
+            if(sum == 0) {
+                sum = doubleNumber;
+            } else if(sumMinus) {
+                sum = sum - doubleNumber;
+            }else if(sumPeke) {
+                sum = sum * doubleNumber;
+            }else if(sumSura) {
+                sum = sum / doubleNumber;
+            }else {
+                sum = sum  + doubleNumber;
+            };
+        };
+        
+        if((first) && (!doubleCounter)) {
+            total = add + "+";
+        } else {
+            total = show.textContent + "+";                               
+        };
+
+        first = false;
+        plusCounter = true; //true
+        minusCounter = false;
+        pointCounter = false;
+        pekeCounter = false;
+        suraCounter = false;
+        doubleCounter = true;  //true //初めの処理以降はtrueで処理を行う　画面表示の部分でバグを発生させないため
+        sumPluse = true; //true
+        sumMinus = false;
+        sumPeke = false;
+        sumSura = false;
+        pointNumber = 0;
+        addPointNumber = 0.1;
+        doubleNumber = 0;
+        addDoubleNumber = 0;
+        show.textContent = total;        
+    };
+    
+    minus.onclick = () => {
+        if(pointNumber) {
+            if(sum == 0) {
+                sum = pointNumber;
+            } else if(sumMinus) {
+                sum = sum - pointNumber;
+            }else if(sumPeke) {
+                sum = sum * pointNumber;
+            }else if(sumSura) {
+                sum = sum / pointNumber;
+            }else {
+                sum = sum  + pointNumber;
+            };
+        }else {
+            if(sum == 0) {
+                sum = doubleNumber;
+            } else if(sumMinus) {
+                sum = sum - doubleNumber;
+            }else if(sumPeke) {
+                sum = sum * doubleNumber;
+            }else if(sumSura) {
+                sum = sum / doubleNumber;
+            }else {
+                sum = sum  + doubleNumber;
+            };
+        };
+        
+        if((first) && (!doubleCounter)) {
+            total = add + "-";
+        } else {
+            total = show.textContent + "-";                               
+        };
+
+        first = false;
+        plusCounter = false; 
+        minusCounter = true; //true
+        pekeCounter = false;
+        suraCounter = false;
+        pointCounter = false;
+        doubleCounter = true; //true
+        sumPluse = false;
+        sumMinus = true; //true
+        sumPeke = false;
+        sumSura = false;
+        pointNumber = 0;
+        addPointNumber = 0.1;
+        doubleNumber = 0;
+        addDoubleNumber = 0;
+        show.textContent = total;
+    };
+
+    peke.onclick = () => {
+        if(pointNumber) {
+            if(sum == 0) {
+                sum = pointNumber;
+            } else if(sumMinus) {
+                sum = sum - pointNumber;
+            }else if(sumPeke) {
+                sum = sum * pointNumber;
+            }else if(sumSura) {
+                sum = sum / pointNumber;
+            }else {
+                sum = sum  + pointNumber;
+            };
+        }else {
+            if(sum == 0) {
+                sum = doubleNumber;
+            } else if(sumMinus) {
+                sum = sum - doubleNumber;
+            }else if(sumPeke) {
+                sum = sum * doubleNumber;
+            }else if(sumSura) {
+                sum = sum / doubleNumber;
+            }else {
+                sum = sum  + doubleNumber;
+            };
+        };
+
+        if((first) && (!doubleCounter)) {
+            total = add + "×";
+        } else {
+            total = show.textContent + "×";                               
+        };
+
+        first = false;
+        plusCounter = false; 
+        minusCounter = false;
+        pekeCounter = true;  // true
+        suraCounter = false;
+        pointCounter = false;
+        doubleCounter = true;   //true
+        sumPluse = false;
+        sumMinus = false;
+        sumPeke = true;    //true
+        sumSura = false;
+        pointNumber = 0;
+        addPointNumber = 0.1;
+        doubleNumber = 0;
+        addDoubleNumber = 0;
+        show.textContent = total;
+    };
+
+    sura.onclick = () => {
+        if(pointNumber) {
+            if(sum == 0) {
+                sum = pointNumber;
+            } else if(sumMinus) {
+                sum = sum - pointNumber;
+            }else if(sumPeke) {
+                sum = sum * pointNumber;
+            }else if(sumSura) {
+                sum = sum / pointNumber;
+            }else {
+                sum = sum  + pointNumber;
+            };
+        }else {
+            if(sum == 0) {
+                sum = doubleNumber;
+            } else if(sumMinus) {
+                sum = sum - doubleNumber;
+            }else if(sumPeke) {
+                sum = sum * doubleNumber;
+            }else if(sumSura) {
+                sum = sum / doubleNumber;
+            }else {
+                sum = sum  + doubleNumber;
+            };
+        };
+
+        if((first) && (!doubleCounter)) {
+            total = add + "÷";
+        } else {
+            total = show.textContent + "÷";                               
+        };
+
+        first = false;
+        plusCounter = false; 
+        minusCounter = false;  
+        pekeCounter = false;
+        suraCounter = true; //true
+        pointCounter = false;
+        doubleCounter = true; //true
+        sumPluse = false;
+        sumMinus = false;
+        sumPeke = false;
+        sumSura = true; //true
+        pointNumber = 0;
+        addPointNumber = 0.1;
+        doubleNumber = 0;
+        addDoubleNumber = 0;
+        show.textContent = total;
+    };
+
+    equal.onclick = () => {
+        console.log(sum);
+        console.log(sumPeke);
+        console.log(pekeCounter);
+        // console.log();
+        if(first) {
+            if(doubleCounter) sum = doubleNumber + pointNumber;
+            if(!doubleCounter) sum = add;
+        };
+        
+        if(minusCounter == sumMinus) {
+            //引き算の結果
+            sum = sum - doubleNumber - pointNumber;
+        }else if(pekeCounter == sumPeke) {
+            // 掛け算の結果
+            if(doubleCounter == !pointCounter) {
+                sum = sum * doubleNumber;
+            }else if(pointCounter) {
+                sum = sum * pointNumber;
+            }else {
+                sum = sum * add;
+            }
+        }else if(suraCounter == sumSura) {
+            // 割り算の結果
+            if(doubleCounter == !pointCounter) {
+                sum = sum / doubleNumber;
+            }else if(pointCounter) {
+                sum = sum / pointNumber;
+            }else {
+                sum = sum / add;
+            }
+        } else {
+            // 足し算の結果
+            sum = sum + doubleNumber + pointNumber;
+        };
+
+        sum = Math.round(sum * 1000) / 1000;
+        show.textContent = sum;
+
+    };
+    
+</script>
+</html>

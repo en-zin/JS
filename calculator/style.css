@@ -1,0 +1,22 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    font-size: 16px;
+}
+
+input {
+    margin: 4px ;
+    width: 30px;
+    /* text-align: center;    */
+}
+
+.canvas {
+    width: 160px;
+    height: 56px;
+    background-color: #252121;
+}
+
+#canvas {
+    background-color: #252121;
+    text-align: center;
+}
