@@ -11,11 +11,13 @@ const multiply = document.getElementById("multiply");
 const divide = document.getElementById("divide");
 const point = document.getElementById("point");
 const minus = document.getElementById("minus");
-const  equal = document.getElementById("equal");
+const equal = document.getElementById("equal");
+const allClear = document.getElementById("AC");
+const clear = document.getElementById("C");
+const back = document.getElementById("back")
 //sevenSegmentここから
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-let sevenPoint = false;
 let sevenSegmentTable = {　　　//７セグコード
     0 : [1,1,1,1,1,1,0,0,0],
     1 : [0,1,1,0,0,0,0,0,0],
@@ -33,7 +35,7 @@ let sevenSegmentTable = {　　　//７セグコード
 //７セグwiki
 // https://ja.wikipedia.org/wiki/7%E3%82%BB%E3%82%B0%E3%83%A1%E3%83%B3%E3%83%88%E3%83%87%E3%82%A3%E3%82%B9%E3%83%97%E3%83%AC%E3%82%A4
 
-sevenSegment = (a,b,c,d,e,f,g,h,i,x) => {
+let sevenSegment = (a,b,c,d,e,f,g,h,i,x) => {
     //A
     ctx.beginPath();
     ctx.fillStyle = "rgb(255,0,0," + a + ")";　//opacityの調整をどうするか？
@@ -96,6 +98,12 @@ sevenSegment = (a,b,c,d,e,f,g,h,i,x) => {
     ctx.fill();
 };
 
+const start = ()  => {          //初期表示
+    sevenSegment(...sevenSegmentTable[0],0);
+}; //関数が実行されない
+
+start();
+
 const sum = () => {       //演算ボタンを押したときの処理
     if(calc == 0) {
         calc = number;
@@ -112,22 +120,49 @@ const sum = () => {       //演算ボタンを押したときの処理
     number = 0;
     pointNumber = 0.1;
     numberJson = [];
-    ctx.clearRect(0, 0, 200, 200);
+    console.log(calc);
 };
 
+allClear.onclick = () => {
+    number = 0;
+    numberJson = [];
+    calc = 0;
+    ctx.clearRect(0, 0, 200, 200);
+    start();
+};
 
-point.onclick = () => {
-    pointFlag = true;
-    sevenPoint = true;
-    let copySevenSegment = [...sevenSegmentTable[numberJson[0]]]; //７セグコードのコピーを作る
-    let copyNumberJson = Number(numberJson[0] + 0.1);       //小数点を押す前に押した数字をコピーして0.1を足す
-    copySevenSegment.splice(7,1,1); //コピーした７セグコードの７番目のセグを点灯状態にさせる
-    numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
-    sevenSegmentTable = {...sevenSegmentTable, [copyNumberJson] : copySevenSegment}; //sevenSegmentTableにkye [copyNumberJson] 配列 copySevenSegmentを代入
+clear.onclick = () => {
+    number = 0;
+    numberJson = [];
+    ctx.clearRect(0, 0, 200, 200);
+    start();
+};
+
+back.onclick = () => {
+    numberJson.shift();
+    ctx.clearRect(0, 0, 200, 200);
+    console.log(numberJson)
     let x = 0;
     for(const sevenSegmentNmber of numberJson) {
         sevenSegment(...sevenSegmentTable[sevenSegmentNmber],(x));
         x = x + 20;
+    };
+};
+
+point.onclick = () => {
+    if(!pointFlag) {
+        pointFlag = true;
+        if(numberJson.length === 0) numberJson.unshift(0);
+        let copySevenSegment = [...sevenSegmentTable[numberJson[0]]]; //７セグコードのコピーを作る
+        let copyNumberJson = Number(numberJson[0] + 0.1);       //小数点を押す前に押した数字をコピーして0.1を足す
+        copySevenSegment.splice(7,1,1); //コピーした７セグコードの７番目のセグを点灯状態にさせる
+        numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
+        sevenSegmentTable = {...sevenSegmentTable, [copyNumberJson] : copySevenSegment}; //sevenSegmentTableにkye [copyNumberJson] 配列 copySevenSegmentを代入
+        let x = 0;
+        for(const sevenSegmentNmber of numberJson) {
+            sevenSegment(...sevenSegmentTable[sevenSegmentNmber],(x));
+            x = x + 20;
+        };
     };
 };
 
@@ -144,7 +179,7 @@ minus.onclick = () => {
         let copyNumberJson = Number(-(numberJson[0]));       //正を押す前に押した数字をコピーしてプラスにする。
         numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
         number = number * -1
-    }
+    };
     let x = 0;
     for(const sevenSegmentNmber of numberJson) {
         sevenSegment(...sevenSegmentTable[sevenSegmentNmber],(x));
@@ -152,7 +187,7 @@ minus.onclick = () => {
     };
     console.log(numberJson);
     console.log(sevenSegmentTable);
-}
+};
 
 for(let n of [0,1,2,3,4,5,6,7,8,9]) {
     const num = document.getElementById(String(n)); 
@@ -181,24 +216,25 @@ for(let n of [0,1,2,3,4,5,6,7,8,9]) {
 
 add.onclick = () => {
     sum();
-    ctx.clearRect(0, 0, 200, 200);
+    ctx.clearRect(0, 0, 200, 20);
     ctx.beginPath();
     ctx.fillStyle = "rgb(255,0,0)";　
-    ctx.rect(133,30,14,2);  
+    ctx.rect(115,10,14,2);  
     ctx.fill();
-
+    
     ctx.beginPath();
     ctx.fillStyle = "rgb(255,0,0)";　
-    ctx.rect(139,24,2,14);  
+    ctx.rect(121,4,2,14);  
     ctx.fill();
 };
 
 subtract.onclick = () => {
     sum();
+    ctx.clearRect(0, 0, 200, 20);
     ///// 引き算点灯
     ctx.beginPath();
     ctx.fillStyle = "rgb(255,0,0)";　
-    ctx.rect(133,30,14,2);  
+    ctx.rect(133,10,14,2);  
     ctx.fill();
     /////
     total = "subtract";
@@ -206,17 +242,18 @@ subtract.onclick = () => {
 
 multiply.onclick = () => {
     sum();
+    ctx.clearRect(0, 0, 200, 20);
     /////////掛け算点灯
     ctx.beginPath();
-    ctx.moveTo(135,25);
-    ctx.lineTo(150,38);
+    ctx.moveTo(85,7);
+    ctx.lineTo(100,20);
     ctx.strokeStyle = "red";
     ctx.closePath();
     ctx.stroke();
-
+    
     ctx.beginPath();
-    ctx.moveTo(150,25);
-    ctx.lineTo(135,38);
+    ctx.moveTo(100,7);
+    ctx.lineTo(85,20);
     ctx.strokeStyle = "red";
     ctx.closePath();
     ctx.stroke();
@@ -226,26 +263,28 @@ multiply.onclick = () => {
 
 divide.onclick = () => {
     sum();
+    ctx.clearRect(0, 0, 200, 20);
     /////////
     ctx.beginPath();
     ctx.fillStyle = "rgb(255,0,0)";　
-    ctx.rect(134,30,12,2);  
+    ctx.rect(63,10,12,2);  
     ctx.fill();
-
+    
     ctx.beginPath();
     ctx.fillStyle = "rgb(255,0,0)";　
-    ctx.rect(138,25,5,2);  
+    ctx.rect(67,5,5,2);  
     ctx.fill();
-
+    
     ctx.beginPath();
     ctx.fillStyle = "rgb(255,0,0)";　
-    ctx.rect(138,35,5,2);  
+    ctx.rect(67,15,5,2);  
     ctx.fill();
     ///////////
     total = "divide";
 };
 
 equal.onclick = () => {
+    ctx.clearRect(0, 0, 200, 200);
     sum();
     if(Number.isInteger(calc)) {
         stringCalc = String(calc);              //calcを文字列にしてnumberjsonに一文字づつ分解して格納する
@@ -267,7 +306,7 @@ equal.onclick = () => {
         numberJson = numberJson.filter(point => point !== ".");　　　　　// "."が残っているのでフィルターにかける
         sevenSegmentTable = {...sevenSegmentTable, [copyPointNumber + 0.1] : copySevenSegment};   //sevenSegmentTableにkye [copyPointNumber + 0.1] 配列 copySevenSegmentを代入
     };
-
+    
     if(Math.sign(calc) == -1) {
         let copySevenSegment = [...sevenSegmentTable[Number(numberJson[0])]]; //７セグコードのコピーを作る
         let copyNumberJson = Number(-(numberJson[0]));       //小数点を押す前に押した数字をコピーしてマイナスにする。
@@ -275,7 +314,7 @@ equal.onclick = () => {
         numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
         sevenSegmentTable = {...sevenSegmentTable, [copyNumberJson] : copySevenSegment}; //sevenSegmentTableにkye [copyNumberJson] 配列 copySevenSegmentを代入
         numberJson = numberJson.filter(point => point !== "-"); // "-"が残っているのでフィルターにかける
-    }
+    };
     console.log(numberJson);
     let x = 0;
     for(const sevenSegmentNmber of numberJson.map(Number)) {    //配列の中身分for分で回して7セグを点灯させる
@@ -283,6 +322,7 @@ equal.onclick = () => {
         x = x + 20;
     };
 };
+
 
 
 
