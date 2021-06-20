@@ -253,7 +253,7 @@ minus.onclick = () => {
     } else {
         let copyNumberJson = Number(-(numberJson[0]));       //正を押す前に押した数字をコピーしてプラスにする。
         numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
-        number = number * -1
+        number = number * -1;
     };
     draw(numberJson);
 };
@@ -304,20 +304,20 @@ divide.onclick = () => {
 
 equal.onclick = () => {
     sum();
+    calc = Math.round(calc * 1000) / 1000;      //本物のcalcを小数点４桁にまとめる
+    let stringCalc = String(calc);              //calcを文字列にしてnumberjsonに一文字づつ分解して格納する
+    let copyCalc = Math.floor(calc);            //calcのコピーを小数点切り下げて生成
+    let stringCopyCalc = String(copyCalc);      //文字列として取得,桁数をlengthで取得したいため
+
     if(Number.isInteger(calc)) {
-        stringCalc = String(calc);              //calcを文字列にしてnumberjsonに一文字づつ分解して格納する
         for(i = 0; i < stringCalc.length; i++) {
             numberJson.unshift(stringCalc.charAt(i));
         };
     }else { 
-        let copyCalc = Math.floor(calc);            //calcのコピーを小数点切り下げて生成
-        let stringCopyCalc = String(copyCalc);      //文字列として取得,桁数をlengthで取得したいため
         let copyPointNumber = Number(stringCopyCalc.slice( -1 ));   //小数点前の数字を取得x.1  xの部分
-        calc = Math.round(calc * 1000) / 1000;  //本物のcalcを小数点４桁にまとめる
-        stringCalc = String(calc);              //calcを文字列にしてnumberjsonに一文字づつ分解して格納する ↓
         for(i = 0; i < stringCalc.length; i++) {
             numberJson.unshift(stringCalc.charAt(i));
-        };                                      //                                                  ↑
+        };                                                                                        
         let copySevenSegment = [...sevenSegmentTable[copyPointNumber]];        //７セグコードのコピーを作る
         copySevenSegment.splice(7,1,1);                                 //コピーした７セグコードの７番目のセグを点灯状態にさせる
         numberJson.splice((-(stringCopyCalc.length)),1,copyPointNumber + 0.1);      //numberJsonの(stringCopyCalc.length)番目から二文字をcopyPointNumber + 0.1に変換させる
