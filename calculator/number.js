@@ -1,4 +1,5 @@
 let total = "";　//合計の処理
+let state = ""; //小数点やオールクリアなどの状態変化 
 let number = 0;　//数字の処理で使用
 let numberJson = [];
 let stringCalc = "";
@@ -32,7 +33,12 @@ let sevenSegmentTable = {　　　//７セグコード
     9 : [1,1,1,0,0,1,1,0,0],
 };
 
-
+const reset = () => {
+    pointFlag = false;
+    number = 0;
+    pointNumber = 0.1;
+    numberJson = [];
+}
 //７セグwiki
 // https://ja.wikipedia.org/wiki/7%E3%82%BB%E3%82%B0%E3%83%A1%E3%83%B3%E3%83%88%E3%83%87%E3%82%A3%E3%82%B9%E3%83%97%E3%83%AC%E3%82%A4
 
@@ -163,19 +169,95 @@ let kigou = () => {
         ctx.fill();
         ///////////
     }
-
 };
 
 //数字の表示
 const draw = (numberJson) => {
-    ctx.clearRect(0, 0, 200, 200);   //キャンパスリセット
+    ctx.clearRect(0, 0, 200, 200);   //キャンパスリセットcalc = Math.round(calc * 1000) / 1000;      //本物のcalcを小数点４桁にまとめる
+
+    if(total == "equal") {
+        let stringCalc = String(calc);              //calcを文字列にしてnumberjsonに一文字づつ分解して格納する
+        let copyCalc = Math.floor(calc);            //calcのコピーを小数点切り下げて生成
+        let stringCopyCalc = String(copyCalc);      //文字列として取得,桁数をlengthで取得したいため
+    
+        if(Number.isInteger(calc)) {
+            for(i = 0; i < stringCalc.length; i++) {
+                numberJson.unshift(stringCalc.charAt(i));
+            };
+        }else { 
+            let copyPointNumber = Number(stringCopyCalc.slice( -1 ));   //小数点前の数字を取得x.1  xの部分
+            for(i = 0; i < stringCalc.length; i++) {
+                numberJson.unshift(stringCalc.charAt(i));
+            };                                                                                        
+            let copySevenSegment = [...sevenSegmentTable[copyPointNumber]];        //７セグコードのコピーを作る
+            copySevenSegment.splice(7,1,1);                                 //コピーした７セグコードの７番目のセグを点灯状態にさせる
+            numberJson.splice((-(stringCopyCalc.length)),1,copyPointNumber + 0.1);      //numberJsonの(stringCopyCalc.length)番目から二文字をcopyPointNumber + 0.1に変換させる
+            numberJson = numberJson.filter(point => point !== ".");　　　　　// "."が残っているのでフィルターにかける
+            sevenSegmentTable = {...sevenSegmentTable, [copyPointNumber + 0.1] : copySevenSegment};   //sevenSegmentTableにkye [copyPointNumber + 0.1] 配列 copySevenSegmentを代入
+        };
+        
+        if(Math.sign(calc) == -1) {
+            let copySevenSegment = [...sevenSegmentTable[Number(numberJson[0])]]; //７セグコードのコピーを作る
+            let copyNumberJson = Number(-(numberJson[0]));       //小数点を押す前に押した数字をコピーしてマイナスにする。
+            copySevenSegment.splice(8,1,1); //コピーした７セグコードの8番目のセグを点灯状態にさせる
+            numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
+            sevenSegmentTable = {...sevenSegmentTable, [copyNumberJson] : copySevenSegment}; //sevenSegmentTableにkye [copyNumberJson] 配列 copySevenSegmentを代入
+            numberJson = numberJson.filter(point => point !== "-"); // "-"が残っているのでフィルターにかける
+        };
+        numberJson = numberJson.map(Number);
+    };
     let x = 0;
     for(const sevenSegmentNmber of numberJson) {    //配列の中身分for分で回して7セグを点灯させる
         sevenSegment(...sevenSegmentTable[sevenSegmentNmber],(x)); //x軸を回すごとに20ずらす
         x = x + 20;
     };
+    kigou();
 };
 
+const changeState = () => {
+    if(state == "allClear") {
+        number = 0;
+        numberJson = [];
+        calc = 0;
+    };
+
+    if(state == "clear") {
+        number = 0;
+        numberJson = [];
+    };
+
+    if(state == "back") {
+        number = Number(String(number).slice(0,-1));
+        numberJson.shift();
+    };
+
+    if(state == "point") {
+        if(!pointFlag) {
+            pointFlag = true;
+            if(numberJson.length === 0) numberJson.unshift(0);
+            let copySevenSegment = [...sevenSegmentTable[numberJson[0]]]; //７セグコードのコピーを作る
+            let copyNumberJson = Number(numberJson[0] + 0.1);       //小数点を押す前に押した数字をコピーして0.1を足す
+            copySevenSegment.splice(7,1,1); //コピーした７セグコードの７番目のセグを点灯状態にさせる
+            numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
+            sevenSegmentTable = {...sevenSegmentTable, [copyNumberJson] : copySevenSegment}; //sevenSegmentTableにkye [copyNumberJson] 配列 copySevenSegmentを代入  
+        };
+    };
+
+    if(state == "minus") {
+        if(Math.sign(number) == 1) {
+            let copySevenSegment = [...sevenSegmentTable[numberJson[0]]]; //７セグコードのコピーを作る
+            let copyNumberJson = Number(-(numberJson[0]));       //小数点を押す前に押した数字をコピーしてマイナスにする。
+            copySevenSegment.splice(8,1,1); //コピーした７セグコードの8番目のセグを点灯状態にさせる
+            numberJson.splice(0,1,copyNumberJson);　// 負を押す前に押した数字をcopyNumberJsonに置き換える
+            sevenSegmentTable = {...sevenSegmentTable, [copyNumberJson] : copySevenSegment}; //sevenSegmentTableにkye [copyNumberJson] 配列 copySevenSegmentを代入
+            number = number * -1;
+        } else {
+            let copyNumberJson = Number(-(numberJson[0]));       //正を押す前に押した数字をコピーしてプラスにする。
+            numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
+            number = number * -1;
+        };
+    };
+};
 
 
 //初期表示
@@ -188,6 +270,7 @@ const start = ()  => {
 
 //演算ボタンを押したときの処理
 const sum = () => {       
+    console.log(number);
     if(calc == 0) {
         calc = number;
     } else if(total == "subtract") {
@@ -199,62 +282,42 @@ const sum = () => {
     } else {
         calc = calc + number;
     };
-    pointFlag = false;
-    number = 0;
-    pointNumber = 0.1;
-    numberJson = [];
+    reset();
 };
 
 
 //前消去
-allClear.onclick = () => {      
-    number = 0;
-    numberJson = [];
-    calc = 0;
+allClear.onclick = () => {     
+    state = "allClear"; 
+    changeState();
     start();
 };
 
 //表示されている文字だけ消去
 clear.onclick = () => {         
-    number = 0;
-    numberJson = [];
+    state = "clear";
+    changeState();
     start();
 };
 
 //一桁消去
-back.onclick = () => {          
-    numberJson.shift();
+back.onclick = () => {
+    state = "back";
+    changeState();
     draw(numberJson);
 };
 
 //小数点の処理
 point.onclick = () => {
-    if(!pointFlag) {
-        pointFlag = true;
-        if(numberJson.length === 0) numberJson.unshift(0);
-        let copySevenSegment = [...sevenSegmentTable[numberJson[0]]]; //７セグコードのコピーを作る
-        let copyNumberJson = Number(numberJson[0] + 0.1);       //小数点を押す前に押した数字をコピーして0.1を足す
-        copySevenSegment.splice(7,1,1); //コピーした７セグコードの７番目のセグを点灯状態にさせる
-        numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
-        sevenSegmentTable = {...sevenSegmentTable, [copyNumberJson] : copySevenSegment}; //sevenSegmentTableにkye [copyNumberJson] 配列 copySevenSegmentを代入
-        draw(numberJson);
-    };
+    state = "point";
+    changeState();
+    draw(numberJson);
 };
 
 //ボタン
 minus.onclick = () => {
-    if(Math.sign(number) == 1) {
-        let copySevenSegment = [...sevenSegmentTable[numberJson[0]]]; //７セグコードのコピーを作る
-        let copyNumberJson = Number(-(numberJson[0]));       //小数点を押す前に押した数字をコピーしてマイナスにする。
-        copySevenSegment.splice(8,1,1); //コピーした７セグコードの8番目のセグを点灯状態にさせる
-        numberJson.splice(0,1,copyNumberJson);　// 負を押す前に押した数字をcopyNumberJsonに置き換える
-        sevenSegmentTable = {...sevenSegmentTable, [copyNumberJson] : copySevenSegment}; //sevenSegmentTableにkye [copyNumberJson] 配列 copySevenSegmentを代入
-        number = number * -1;
-    } else {
-        let copyNumberJson = Number(-(numberJson[0]));       //正を押す前に押した数字をコピーしてプラスにする。
-        numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
-        number = number * -1;
-    };
+    state = "minus";
+    changeState();
     draw(numberJson);
 };
 
@@ -281,59 +344,30 @@ for(let n of [0,1,2,3,4,5,6,7,8,9]) {
 add.onclick = () => {
     total = "add";
     sum();
-    kigou();
+    draw(numberJson);
 };
 
 subtract.onclick = () => {
     total = "subtract";
     sum();
-    kigou();
+    draw(numberJson);
 };
 
 multiply.onclick = () => {
     total = "multiply";
     sum();
-    kigou();
+    draw(numberJson);
 };
 
 divide.onclick = () => {
     total = "divide";
     sum();
-    kigou();
+    draw(numberJson);
 };
 
 equal.onclick = () => {
     sum();
-    calc = Math.round(calc * 1000) / 1000;      //本物のcalcを小数点４桁にまとめる
-    let stringCalc = String(calc);              //calcを文字列にしてnumberjsonに一文字づつ分解して格納する
-    let copyCalc = Math.floor(calc);            //calcのコピーを小数点切り下げて生成
-    let stringCopyCalc = String(copyCalc);      //文字列として取得,桁数をlengthで取得したいため
-
-    if(Number.isInteger(calc)) {
-        for(i = 0; i < stringCalc.length; i++) {
-            numberJson.unshift(stringCalc.charAt(i));
-        };
-    }else { 
-        let copyPointNumber = Number(stringCopyCalc.slice( -1 ));   //小数点前の数字を取得x.1  xの部分
-        for(i = 0; i < stringCalc.length; i++) {
-            numberJson.unshift(stringCalc.charAt(i));
-        };                                                                                        
-        let copySevenSegment = [...sevenSegmentTable[copyPointNumber]];        //７セグコードのコピーを作る
-        copySevenSegment.splice(7,1,1);                                 //コピーした７セグコードの７番目のセグを点灯状態にさせる
-        numberJson.splice((-(stringCopyCalc.length)),1,copyPointNumber + 0.1);      //numberJsonの(stringCopyCalc.length)番目から二文字をcopyPointNumber + 0.1に変換させる
-        numberJson = numberJson.filter(point => point !== ".");　　　　　// "."が残っているのでフィルターにかける
-        sevenSegmentTable = {...sevenSegmentTable, [copyPointNumber + 0.1] : copySevenSegment};   //sevenSegmentTableにkye [copyPointNumber + 0.1] 配列 copySevenSegmentを代入
-    };
-    
-    if(Math.sign(calc) == -1) {
-        let copySevenSegment = [...sevenSegmentTable[Number(numberJson[0])]]; //７セグコードのコピーを作る
-        let copyNumberJson = Number(-(numberJson[0]));       //小数点を押す前に押した数字をコピーしてマイナスにする。
-        copySevenSegment.splice(8,1,1); //コピーした７セグコードの8番目のセグを点灯状態にさせる
-        numberJson.splice(0,1,copyNumberJson);　// 小数点を押す前に押した数字をcopyNumberJsonに置き換える
-        sevenSegmentTable = {...sevenSegmentTable, [copyNumberJson] : copySevenSegment}; //sevenSegmentTableにkye [copyNumberJson] 配列 copySevenSegmentを代入
-        numberJson = numberJson.filter(point => point !== "-"); // "-"が残っているのでフィルターにかける
-    };
-    numberJson = numberJson.map(Number);
+    total = "equal";
     draw(numberJson);
 };
 
