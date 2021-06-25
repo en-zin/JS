@@ -1,16 +1,35 @@
 class calculator {
-    constructor(number) {
-        this.number = number
+    constructor(number,toatal,state) {
+        this.number = number;
+        this.toatal = toatal;
+        this.state = state;
     };
-    setNumber() {
-        console.log(this.number);
+
+    strat() {
+        
+    }
+
+    drow() {
+
     };
+
+    changeState() {
+        
+    };
+    
+    kigou() {
+
+    };
+
+    sum() {
+
+    };
+    
 };
 
-for(let n of [0,1,2,3,4,5,6,7,8,9]) {
-    const num = document.getElementById(Number(n)); 
-    num.onclick = () => {
-        const number = new calculator(n);
-        number.setNumber();
-    };
-};
+
+
+
+
+let test = new calculator();
+console.log(test);
