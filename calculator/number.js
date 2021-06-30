@@ -374,3 +374,87 @@ equal.onclick = () => {
 
 
 
+
+
+
+
+
+class sevenSegment {
+    constructor() {
+        this.sevenSegmentTable =  {　　　//７セグコード
+            0 : [1,1,1,1,1,1,0,0,0],
+            1 : [0,1,1,0,0,0,0,0,0],
+            2 : [1,1,0,1,1,0,1,0,0],
+            3 : [1,1,1,1,0,0,1,0,0],
+            4 : [0,1,1,0,0,1,1,0,0],
+            5 : [1,0,1,1,0,1,1,0,0],
+            6 : [1,0,1,1,1,1,1,0,0],
+            7 : [1,1,1,0,0,0,0,0,0],
+            8 : [1,1,1,1,1,1,1,0,0],
+            9 : [1,1,1,0,0,1,1,0,0],
+        };
+    };
+    
+    drowSevenSegment(a,b,c,d,e,f,g,h,i,x) {
+        //A
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(255,0,0," + a + ")";　//opacityの調整をどうするか？
+        ctx.rect(135 - x ,24,10,2);  //引数持してrect()のx軸に引数を持たせると数字をずらせそう x軸 - 引数x
+        ctx.fill();
+        
+        
+        //B
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(255,0,0," + b + ")";
+        ctx.rect(145 - x,28,2,8);
+        ctx.fill();
+        
+        
+        //C
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(255,0,0," + c + ")";
+        ctx.rect(145 - x,40,2,8);
+        ctx.fill();
+        
+        
+        //D 
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(255,0,0," + d + ")";
+        ctx.rect(135 - x,50,10,2);
+        ctx.fill();
+        
+        
+        //E
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(255,0,0," + e + ")";
+        ctx.rect(133 - x,40,2,8);
+        ctx.fill();
+        
+        //F
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(255,0,0," + f + ")";
+        ctx.rect(133 - x,28,2,8);
+        ctx.fill();
+        
+        
+        //G
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(255,0,0," + g + ")";
+        ctx.rect(135 - x,37,10,2);
+        ctx.fill();
+        
+        //h //ドット
+        ctx.beginPath () ;
+        ctx.arc( 150 - x, 50, 2, 0 * Math.PI / 180, 360 * Math.PI / 180, false );
+        ctx.fillStyle = "rgba(255,0,0," + h + ")";
+        ctx.strokeStyle = "rgb(252,21,21," + h + ")"
+        ctx.fill() ;
+        ctx.stroke();
+        
+        //マイナス表示
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(255,0,0," + i + ")";　//opacityの調整をどうするか？
+        ctx.rect(10,37,10,2);  //引数持してrect()のx軸に引数を持たせると数字をずらせそう x軸 - 引数x
+        ctx.fill();
+    };
+};
